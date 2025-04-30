@@ -1,0 +1,22 @@
+FROM node:14
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY server/package*.json ./
+
+# Install dependencies
+RUN npm install --only=production
+
+# Copy the rest of the application code
+COPY server/src ./src
+
+# Build the TypeScript code
+RUN npm run build
+
+# Expose the application port
+EXPOSE 5000
+
+# Start the application
+CMD ["node", "dist/index.js"]

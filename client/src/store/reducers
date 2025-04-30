@@ -1,0 +1,13 @@
+// This file contains reducers for managing application state. 
+
+import { combineReducers } from 'redux';
+import authReducer from '../actions/authActions';
+import quizReducer from '../actions/quizActions';
+
+// Combine all reducers into a single reducer
+const rootReducer = combineReducers({
+  auth: authReducer,
+  quiz: quizReducer,
+});
+
+export default rootReducer;

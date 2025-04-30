@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.client
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://server:5000/api
+    depends_on:
+      - server
+    networks:
+      - quizler-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.server
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/quizler
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongo
+    networks:
+      - quizler-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - quizler-network
+
+networks:
+  quizler-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
