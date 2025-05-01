@@ -15,7 +15,7 @@ interface AuthenticatedRequest extends Request {
 }
 
 // Get JWT secret from environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'J2s9$aP4qR7#tL5gZ3vX6*bN1mC8eD0fH';
 
 export const authMiddleware = (
   req: AuthenticatedRequest,

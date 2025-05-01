@@ -22,7 +22,7 @@ class AuthService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
   }
 
   async login(credentials: LoginCredentials): Promise<User> {

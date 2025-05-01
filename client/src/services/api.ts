@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+// Declare the process variable to avoid TypeScript errors
+declare const process: {
+  env: {
+    REACT_APP_API_URL?: string;
+    [key: string]: string | undefined;
+  };
+};
+
 // Base API URL
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 

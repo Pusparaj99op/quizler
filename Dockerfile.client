@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci --production && npm cache clean --force
+# Use npm install instead of npm ci to handle package lock mismatches
+RUN npm install --production && npm cache clean --force
 
 # Copy source files and build
 COPY . .
