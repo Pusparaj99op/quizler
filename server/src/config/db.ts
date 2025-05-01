@@ -1,18 +1,17 @@
 import mongoose from 'mongoose';
-import { config } from './env';
+import { logger } from '../utils/logger';
 
-const connectDB = async () => {
-    try {
-        await mongoose.connect(config.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-        });
-        console.log('MongoDB connected successfully');
-    } catch (error) {
-        console.error('MongoDB connection failed:', error.message);
-        process.exit(1);
-    }
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/quizler';
+
+const connectDB = async (): Promise<void> => {
+  try {
+    // Modern MongoDB driver no longer needs these options
+    await mongoose.connect(MONGO_URI);
+    logger.info('MongoDB connected successfully');
+  } catch (error) {
+    logger.error(`MongoDB connection error: ${error}`);
+    process.exit(1);
+  }
 };
 
 export default connectDB;

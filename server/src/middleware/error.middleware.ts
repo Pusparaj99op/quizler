@@ -1,16 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 
-const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack); // Log the error stack for debugging
+interface ErrorResponse {
+  message: string;
+  stack?: string;
+}
 
-    const statusCode = err.status || 500; // Set the status code
-    const message = err.message || 'Internal Server Error'; // Set the error message
+export const errorHandler = (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const errorResponse: ErrorResponse = {
+    message: err.message,
+  };
 
-    res.status(statusCode).json({
-        status: 'error',
-        statusCode,
-        message,
-    });
+  if (process.env.NODE_ENV !== 'production') {
+    errorResponse.stack = err.stack;
+  }
+
+  res.status(statusCode).json(errorResponse);
 };
 
 export default errorHandler;

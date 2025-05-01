@@ -1,16 +1,16 @@
 import { Router } from 'express';
-import { register, login, logout } from '../controllers/auth.controller';
-import { validateRegistration, validateLogin } from '../middleware/validators';
+import { register, login, getUserProfile } from '../controllers/auth.controller';
+import authMiddleware from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Route for user registration
-router.post('/register', validateRegistration, register);
+// Register a new user
+router.post('/register', register);
 
-// Route for user login
-router.post('/login', validateLogin, login);
+// Login user
+router.post('/login', login);
 
-// Route for user logout
-router.post('/logout', logout);
+// Get user profile (protected route)
+router.get('/profile', authMiddleware, getUserProfile);
 
 export default router;

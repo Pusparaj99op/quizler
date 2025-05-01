@@ -1,55 +1,104 @@
 import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { User } from '../models/user.model';
-import { generateToken } from '../utils/tokenGenerator';
-import { validateRegistration, validateLogin } from '../utils/validators';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { User, IUser } from '../models/user.model';
+import mongoose from 'mongoose';
 
-class AuthController {
-    async register(req: Request, res: Response) {
-        const { username, email, password } = req.body;
+// Get JWT secret from environment variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-        const { error } = validateRegistration(req.body);
-        if (error) return res.status(400).json({ message: error.details[0].message });
+// Generate JWT token
+const generateToken = (id: string): string => {
+  return jwt.sign({ id }, JWT_SECRET, { expiresIn: '30d' });
+};
 
-        try {
-            const existingUser = await User.findOne({ email });
-            if (existingUser) return res.status(400).json({ message: 'User already exists' });
+// Register user
+export const register = async (req: Request, res: Response) => {
+  const { name, email, password } = req.body;
 
-            const user = await AuthService.createUser({ username, email, password });
-            const token = generateToken(user._id);
-            res.status(201).json({ user, token });
-        } catch (err) {
-            res.status(500).json({ message: 'Server error' });
-        }
+  try {
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    async login(req: Request, res: Response) {
-        const { email, password } = req.body;
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+    });
 
-        const { error } = validateLogin(req.body);
-        if (error) return res.status(400).json({ message: error.details[0].message });
+    if (user) {
+      // Explicitly cast to IUser and ensure _id is treated as a string
+      const newUser = user as IUser;
+      const userId = newUser._id instanceof mongoose.Types.ObjectId 
+        ? newUser._id.toString() 
+        : typeof newUser._id === 'string' 
+          ? newUser._id 
+          : String(newUser._id);
+          
+      res.status(201).json({
+        _id: userId,
+        name: newUser.name,
+        email: newUser.email,
+        token: generateToken(userId),
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error(`Error in register: ${error}`);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
-        try {
-            const user = await AuthService.authenticateUser(email, password);
-            if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+// Login user
+export const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
 
-            const token = generateToken(user._id);
-            res.status(200).json({ user, token });
-        } catch (err) {
-            res.status(500).json({ message: 'Server error' });
-        }
+  try {
+    // Find user by email
+    const user = await User.findOne({ email }) as IUser;
+
+    // Check if user exists and password matches
+    if (user && (await user.comparePassword(password))) {
+      const userId = user._id instanceof mongoose.Types.ObjectId 
+        ? user._id.toString() 
+        : typeof user._id === 'string' 
+          ? user._id 
+          : String(user._id);
+          
+      res.json({
+        _id: userId,
+        name: user.name,
+        email: user.email,
+        token: generateToken(userId),
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    console.error(`Error in login: ${error}`);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get user profile
+export const getUserProfile = async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore - req.user is added by auth middleware
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    async getUserProfile(req: Request, res: Response) {
-        try {
-            const user = await User.findById(req.userId).select('-password');
-            if (!user) return res.status(404).json({ message: 'User not found' });
-
-            res.status(200).json(user);
-        } catch (err) {
-            res.status(500).json({ message: 'Server error' });
-        }
-    }
-}
-
-export const authController = new AuthController();
+    res.json(user);
+  } catch (error) {
+    console.error(`Error in getUserProfile: ${error}`);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

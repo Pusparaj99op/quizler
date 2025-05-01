@@ -1,53 +1,62 @@
-export interface Quiz {
+export interface Question {
   id: string;
+  text: string;
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+export interface Quiz {
+  _id: string;
+  id: string; // Added for compatibility
   title: string;
   description: string;
   questions: Question[];
-  createdAt: Date;
-  updatedAt: Date;
-  creatorId: string;
-  duration: number; // in seconds
-  isPublished: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  duration: number; // Added missing property
+  totalQuestions: number; // Added missing property
 }
 
-export interface Question {
-  id: string;
-  quizId: string;
-  questionText: string;
-  questionType: QuestionType;
-  options?: Option[];
-  correctAnswer: string | string[]; // single or multiple correct answers
-  mediaUrl?: string; // URL for any associated media
-  timeLimit?: number; // time limit for this question in seconds
-}
-
-export interface Option {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-}
-
-export enum QuestionType {
-  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
-  SINGLE_CHOICE = 'SINGLE_CHOICE',
-  TRUE_FALSE = 'TRUE_FALSE',
-  FILL_IN_THE_BLANK = 'FILL_IN_THE_BLANK',
-  SHORT_ANSWER = 'SHORT_ANSWER',
-  CODE_EXECUTION = 'CODE_EXECUTION',
-  DIAGRAM_ANNOTATION = 'DIAGRAM_ANNOTATION',
-  // Add more question types as needed
-}
-
-export interface QuizResponse {
-  quizId: string;
-  userId: string;
-  answers: Answer[];
+export interface Response {
+  _id: string;
+  quiz: Quiz;
+  user: string;
+  answers: string[];
   score: number;
-  submittedAt: Date;
+  createdAt: string;
 }
 
-export interface Answer {
-  questionId: string;
-  selectedOptions: string[]; // selected option IDs
-  responseText?: string; // for text-based answers
+// Redux action types
+export enum QuizActionTypes {
+  FETCH_QUIZZES_REQUEST = 'FETCH_QUIZZES_REQUEST',
+  FETCH_QUIZZES_SUCCESS = 'FETCH_QUIZZES_SUCCESS',
+  FETCH_QUIZZES_FAILURE = 'FETCH_QUIZZES_FAILURE',
+  
+  FETCH_QUIZ_REQUEST = 'FETCH_QUIZ_REQUEST',
+  FETCH_QUIZ_SUCCESS = 'FETCH_QUIZ_SUCCESS',
+  FETCH_QUIZ_FAILURE = 'FETCH_QUIZ_FAILURE',
+  
+  CREATE_QUIZ_REQUEST = 'CREATE_QUIZ_REQUEST',
+  CREATE_QUIZ_SUCCESS = 'CREATE_QUIZ_SUCCESS',
+  CREATE_QUIZ_FAILURE = 'CREATE_QUIZ_FAILURE',
+  
+  UPDATE_QUIZ_REQUEST = 'UPDATE_QUIZ_REQUEST',
+  UPDATE_QUIZ_SUCCESS = 'UPDATE_QUIZ_SUCCESS',
+  UPDATE_QUIZ_FAILURE = 'UPDATE_QUIZ_FAILURE',
+  
+  DELETE_QUIZ_REQUEST = 'DELETE_QUIZ_REQUEST',
+  DELETE_QUIZ_SUCCESS = 'DELETE_QUIZ_SUCCESS',
+  DELETE_QUIZ_FAILURE = 'DELETE_QUIZ_FAILURE',
+  
+  SUBMIT_QUIZ_REQUEST = 'SUBMIT_QUIZ_REQUEST',
+  SUBMIT_QUIZ_SUCCESS = 'SUBMIT_QUIZ_SUCCESS',
+  SUBMIT_QUIZ_FAILURE = 'SUBMIT_QUIZ_FAILURE'
+}
+
+export interface QuizAction {
+  type: QuizActionTypes;
+  payload?: any;
+  error?: any;
 }

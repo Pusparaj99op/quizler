@@ -1,20 +1,33 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Base API URL
+export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-const apiClient = axios.create({
+// Helper to get auth header
+export const getAuthHeader = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': user.token
+    }
+  };
+};
+
+// Create an axios instance
+const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
-// Interceptor for adding JWT token to requests
-apiClient.interceptors.request.use(
+// Add an interceptor to include the auth token in requests
+api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.token) {
+      config.headers['x-auth-token'] = user.token;
     }
     return config;
   },
@@ -23,33 +36,4 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Function to handle GET requests
-export const get = async (url: string) => {
-  const response = await apiClient.get(url);
-  return response.data;
-};
-
-// Function to handle POST requests
-export const post = async (url: string, data: any) => {
-  const response = await apiClient.post(url, data);
-  return response.data;
-};
-
-// Function to handle PUT requests
-export const put = async (url: string, data: any) => {
-  const response = await apiClient.put(url, data);
-  return response.data;
-};
-
-// Function to handle DELETE requests
-export const del = async (url: string) => {
-  const response = await apiClient.delete(url);
-  return response.data;
-};
-
-export default {
-  get,
-  post,
-  put,
-  del,
-};
+export default api;

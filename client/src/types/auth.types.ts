@@ -1,24 +1,25 @@
 export interface User {
-  id: string;
-  username: string;
+  _id: string;
+  name: string;
   email: string;
-  role: 'student' | 'teacher' | 'admin';
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface AuthResponse {
   token: string;
-  user: User;
 }
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
+// Redux action types
+export enum AuthActionTypes {
+  LOGIN_REQUEST = 'LOGIN_REQUEST',
+  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  LOGIN_FAILURE = 'LOGIN_FAILURE',
+  
+  REGISTER_REQUEST = 'REGISTER_REQUEST',
+  REGISTER_SUCCESS = 'REGISTER_SUCCESS',
+  REGISTER_FAILURE = 'REGISTER_FAILURE',
+  
+  LOGOUT = 'LOGOUT'
 }
 
-export interface RegisterCredentials {
-  username: string;
-  email: string;
-  password: string;
+export interface AuthAction {
+  type: AuthActionTypes;
+  payload?: any;
+  error?: any;
 }

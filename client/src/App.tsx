@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { QuizProvider } from './contexts/QuizContext';
 import Home from './pages/Home';
@@ -15,17 +15,19 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <QuizProvider>
-        <Router>
+        <BrowserRouter>
           <Header />
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/login" component={Login} />
-            <Route path="/register" component={Register} />
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/quiz/:id" component={Quiz} />
-          </Switch>
+          <div className="container mx-auto px-4 min-h-screen">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/quiz/:id" element={<Quiz />} />
+            </Routes>
+          </div>
           <Footer />
-        </Router>
+        </BrowserRouter>
       </QuizProvider>
     </AuthProvider>
   );

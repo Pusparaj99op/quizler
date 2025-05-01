@@ -1,51 +1,19 @@
-/quizler/quizler/client/src/index.css
-
-/* Global styles for the Quizler application */
-
-/* Reset some default styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Tailwind CSS Directives */
+@tailwind base; 
+@tailwind components;
+@tailwind utilities;
+/* End Tailwind CSS Directives */
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f9fafb; /* Light background for better readability */
-    color: #333; /* Dark text color for contrast */
-    line-height: 1.6; /* Improved line height for readability */
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-    text-decoration: none; /* Remove underline from links */
-    color: #1d4ed8; /* Primary link color */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
-
-a:hover {
-    text-decoration: underline; /* Underline on hover for better UX */
-}
-
-h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 1rem; /* Space below headings */
-}
-
-button {
-    cursor: pointer; /* Pointer cursor for buttons */
-}
-
-/* Utility classes */
-.flex {
-    display: flex;
-}
-
-.hidden {
-    display: none;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem; /* Responsive padding */
-}
-
-/* TailwindCSS custom styles can be added here */

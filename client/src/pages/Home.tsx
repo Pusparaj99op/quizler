@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { QuizCard } from '../components/quiz/QuizCard';
+import QuizCard from '../components/quiz/QuizCard';
 
 const Home: React.FC = () => {
     const { user } = useAuth();
@@ -16,9 +16,48 @@ const Home: React.FC = () => {
                 <h2 className="text-2xl font-semibold mb-4">Featured Quizzes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Sample Quiz Cards - Replace with dynamic data */}
-                    <QuizCard title="Math Challenge" description="Test your math skills!" />
-                    <QuizCard title="Science Quiz" description="Explore the wonders of science!" />
-                    <QuizCard title="History Trivia" description="How well do you know history?" />
+                    <QuizCard 
+                        quiz={{
+                            _id: "1",
+                            id: "1",
+                            title: "Math Challenge",
+                            description: "Test your math skills!",
+                            questions: [],
+                            createdBy: "",
+                            createdAt: "",
+                            updatedAt: "",
+                            duration: 30,
+                            totalQuestions: 10
+                        }}
+                    />
+                    <QuizCard 
+                        quiz={{
+                            _id: "2",
+                            id: "2",
+                            title: "Science Quiz",
+                            description: "Explore the wonders of science!",
+                            questions: [],
+                            createdBy: "",
+                            createdAt: "",
+                            updatedAt: "",
+                            duration: 30,
+                            totalQuestions: 10
+                        }}
+                    />
+                    <QuizCard 
+                        quiz={{
+                            _id: "3",
+                            id: "3",
+                            title: "History Trivia",
+                            description: "How well do you know history?",
+                            questions: [],
+                            createdBy: "",
+                            createdAt: "",
+                            updatedAt: "",
+                            duration: 30,
+                            totalQuestions: 10
+                        }}
+                    />
                 </div>
             </main>
             <footer className="mt-8">

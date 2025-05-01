@@ -1,28 +1,29 @@
 import { Router } from 'express';
 import { 
-    createQuiz, 
-    getQuizzes, 
-    getQuizById, 
-    updateQuiz, 
-    deleteQuiz 
+  createQuiz, 
+  getQuizzes, 
+  getQuizById, 
+  updateQuiz, 
+  deleteQuiz,
+  submitQuiz,
+  getUserResponses
 } from '../controllers/quiz.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import authMiddleware from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Route to create a new quiz
-router.post('/', authMiddleware, createQuiz);
+// Protected routes - require authentication
+router.use(authMiddleware);
 
-// Route to get all quizzes
-router.get('/', authMiddleware, getQuizzes);
+// Quiz routes
+router.post('/', createQuiz);
+router.get('/', getQuizzes);
+router.get('/:id', getQuizById);
+router.put('/:id', updateQuiz);
+router.delete('/:id', deleteQuiz);
 
-// Route to get a quiz by ID
-router.get('/:id', authMiddleware, getQuizById);
-
-// Route to update a quiz by ID
-router.put('/:id', authMiddleware, updateQuiz);
-
-// Route to delete a quiz by ID
-router.delete('/:id', authMiddleware, deleteQuiz);
+// Quiz response routes
+router.post('/submit', submitQuiz);
+router.get('/responses/user', getUserResponses);
 
 export default router;

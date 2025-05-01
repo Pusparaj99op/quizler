@@ -1,41 +1,35 @@
-export interface Quiz {
-    id: string;
-    title: string;
-    description: string;
-    questions: Question[];
-    createdAt: Date;
-    updatedAt: Date;
-    creatorId: string;
-    duration: number; // in seconds
-    isPublished: boolean;
+import { Document } from 'mongoose';
+
+export interface IQuestion {
+  text: string;
+  options: string[];
+  correctAnswer: string;
 }
 
-export interface Question {
-    id: string;
-    quizId: string;
-    questionText: string;
-    questionType: QuestionType;
-    options?: Option[];
-    correctAnswer?: string | string[]; // single or multiple answers
-    mediaUrl?: string; // URL for images, videos, etc.
-    timeLimit?: number; // in seconds
+export interface IQuiz extends Document {
+  title: string;
+  description: string;
+  questions: IQuestion[];
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface Option {
-    id: string;
-    questionId: string;
-    optionText: string;
-    isCorrect: boolean;
+export interface IResponse extends Document {
+  quiz: string;
+  user: string;
+  answers: string[];
+  score: number;
+  createdAt: Date;
 }
 
-export enum QuestionType {
-    MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
-    SINGLE_CHOICE = 'SINGLE_CHOICE',
-    TRUE_FALSE = 'TRUE_FALSE',
-    FILL_IN_THE_BLANK = 'FILL_IN_THE_BLANK',
-    SHORT_ANSWER = 'SHORT_ANSWER',
-    CODE_EXECUTION = 'CODE_EXECUTION',
-    DIAGRAM_ANNOTATION = 'DIAGRAM_ANNOTATION',
-    SEQUENCING = 'SEQUENCING',
-    // Add more types as needed
+export interface QuizData {
+  title: string;
+  description: string;
+  questions: IQuestion[];
+}
+
+export interface QuizResponse {
+  quiz: string;
+  answers: string[];
 }

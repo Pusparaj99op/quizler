@@ -1,57 +1,82 @@
 import { Request, Response } from 'express';
-import User from '../models/user.model';
-import { createUser, getUserById, updateUser, deleteUser } from '../services/user.service';
+import * as userService from '../services/user.service';
 
-// Controller to handle user-related requests
-class UserController {
-    // Create a new user
-    async register(req: Request, res: Response) {
-        try {
-            const user = await createUser(req.body);
-            return res.status(201).json(user);
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
+// Create a new user
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    // This would typically be handled by the auth.controller for registration
+    // But we'll add it here for admin user creation
+    const userData = req.body;
+    
+    // Here you would typically validate the user data and then create the user
+    // For now, we'll just return a placeholder response
+    return res.status(501).json({ 
+      message: 'User creation through this endpoint is not implemented. Use /auth/register instead.' 
+    });
+  } catch (error) {
+    console.error('Error in createUser controller:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get user by ID
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const user = await userService.getUserById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+    
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error('Error in getUserById controller:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
-    // Get user by ID
-    async getUser(req: Request, res: Response) {
-        try {
-            const user = await getUserById(req.params.id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            return res.status(200).json(user);
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
+// Get all users
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await userService.getAllUsers();
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error('Error in getAllUsers controller:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Update user
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = await userService.updateUser(userId, req.body);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
+    
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error in updateUser controller:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
-    // Update user information
-    async update(req: Request, res: Response) {
-        try {
-            const updatedUser = await updateUser(req.params.id, req.body);
-            if (!updatedUser) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            return res.status(200).json(updatedUser);
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
+// Delete user
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const success = await userService.deleteUser(userId);
+    
+    if (!success) {
+      return res.status(404).json({ message: 'User not found' });
     }
-
-    // Delete a user
-    async delete(req: Request, res: Response) {
-        try {
-            const result = await deleteUser(req.params.id);
-            if (!result) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            return res.status(204).send();
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
-    }
-}
-
-export default new UserController();
+    
+    return res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error in deleteUser controller:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};

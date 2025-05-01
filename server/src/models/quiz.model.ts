@@ -1,39 +1,69 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { IQuiz, IResponse } from '../types/quiz.types';
 
-export interface IQuestion {
-    questionText: string;
-    options: string[];
-    correctAnswer: string;
-    explanation?: string;
-    mediaUrl?: string;
-}
-
-export interface IQuiz extends Document {
-    title: string;
-    description: string;
-    questions: IQuestion[];
-    duration: number; // in seconds
-    createdBy: mongoose.Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-const QuestionSchema: Schema = new Schema({
-    questionText: { type: String, required: true },
-    options: { type: [String], required: true },
-    correctAnswer: { type: String, required: true },
-    explanation: { type: String },
-    mediaUrl: { type: String }
+const questionSchema = new Schema({
+  text: {
+    type: String,
+    required: true,
+  },
+  options: {
+    type: [String],
+    required: true,
+  },
+  correctAnswer: {
+    type: String,
+    required: true,
+  },
 });
 
-const QuizSchema: Schema = new Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    questions: { type: [QuestionSchema], required: true },
-    duration: { type: Number, required: true },
-    createdBy: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
-}, {
-    timestamps: true
-});
+const quizSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    questions: [questionSchema],
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-export const Quiz = mongoose.model<IQuiz>('Quiz', QuizSchema);
+const responseSchema = new Schema(
+  {
+    quiz: {
+      type: Schema.Types.ObjectId,
+      ref: 'Quiz',
+      required: true,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    answers: {
+      type: [String],
+      required: true,
+    },
+    score: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const Quiz = mongoose.model<IQuiz>('Quiz', quizSchema);
+export const Response = mongoose.model<IResponse>('Response', responseSchema);

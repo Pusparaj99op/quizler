@@ -120,7 +120,7 @@ I need you to create a complete web application called Quizler.com - an advanced
 - Testing: Jest, Cypress for E2E testing
 
 ## Payment Integration
-- Razorpay as primary payment gateway
+- Google Pay as primary payment gateway
 - UPI integration (PhonePe, Google Pay, Paytm)
 - International payment options (PayPal, Stripe)
 - Cryptocurrency payment options

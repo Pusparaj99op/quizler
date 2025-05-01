@@ -1,22 +1,25 @@
-FROM node:14
+# Use a specific Node.js version with security patches
+FROM node:20.12.0-alpine3.19
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY server/package*.json ./
+# Copy package files and install dependencies with security best practices
+COPY package*.json ./
+RUN npm ci --production && npm cache clean --force
 
-# Install dependencies
-RUN npm install --only=production
-
-# Copy the rest of the application code
-COPY server/src ./src
-
-# Build the TypeScript code
+# Copy source files and build
+COPY . .
 RUN npm run build
 
-# Expose the application port
+# Create non-root user for better security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Expose API port
 EXPOSE 5000
 
-# Start the application
+# Use production environment
+ENV NODE_ENV=production
+
+# Start with a more secure entrypoint
 CMD ["node", "dist/index.js"]

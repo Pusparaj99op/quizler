@@ -1,43 +1,62 @@
-import { Quiz } from '../models/quiz.model';
-import { Response } from '../models/response.model';
+import { Quiz, Response } from '../models/quiz.model';
 import { User } from '../models/user.model';
-import { QuizData, QuizResponse } from '../types/quiz.types';
+import { QuizData, QuizResponse, IQuiz, IResponse } from '../types/quiz.types';
 
-class QuizService {
-    async createQuiz(quizData: QuizData): Promise<Quiz> {
-        const quiz = new Quiz(quizData);
-        return await quiz.save();
+export const quizService = {
+  createQuiz: async (quizData: QuizData, userId: string): Promise<IQuiz> => {
+    const newQuiz = await Quiz.create({
+      ...quizData,
+      createdBy: userId,
+    });
+    return newQuiz;
+  },
+
+  getQuizById: async (id: string): Promise<IQuiz | null> => {
+    return await Quiz.findById(id);
+  },
+
+  getQuizzes: async (userId?: string): Promise<IQuiz[]> => {
+    if (userId) {
+      return await Quiz.find({ createdBy: userId });
+    }
+    return await Quiz.find();
+  },
+
+  updateQuiz: async (id: string, data: Partial<QuizData>): Promise<IQuiz | null> => {
+    return await Quiz.findByIdAndUpdate(id, data, { new: true });
+  },
+
+  deleteQuiz: async (id: string): Promise<boolean> => {
+    const result = await Quiz.findByIdAndDelete(id);
+    return !!result;
+  },
+
+  submitQuizResponse: async (
+    responseData: QuizResponse,
+    userId: string
+  ): Promise<IResponse> => {
+    const quiz = await Quiz.findById(responseData.quiz);
+    if (!quiz) {
+      throw new Error('Quiz not found');
     }
 
-    async getQuizById(quizId: string): Promise<Quiz | null> {
-        return await Quiz.findById(quizId).populate('questions');
-    }
+    const score = quiz.questions.reduce((total, question, index) => {
+      return total + (question.correctAnswer === responseData.answers[index] ? 1 : 0);
+    }, 0);
 
-    async getAllQuizzes(): Promise<Quiz[]> {
-        return await Quiz.find().populate('questions');
-    }
+    const response = await Response.create({
+      quiz: responseData.quiz,
+      user: userId,
+      answers: responseData.answers,
+      score,
+    });
 
-    async updateQuiz(quizId: string, quizData: Partial<QuizData>): Promise<Quiz | null> {
-        return await Quiz.findByIdAndUpdate(quizId, quizData, { new: true });
-    }
+    return response;
+  },
 
-    async deleteQuiz(quizId: string): Promise<Quiz | null> {
-        return await Quiz.findByIdAndDelete(quizId);
-    }
+  getUserResponses: async (userId: string): Promise<IResponse[]> => {
+    return await Response.find({ user: userId }).populate('quiz');
+  },
+};
 
-    async submitResponse(quizId: string, userId: string, responseData: QuizResponse): Promise<Response> {
-        const response = new Response({
-            quiz: quizId,
-            user: userId,
-            answers: responseData.answers,
-            score: responseData.score,
-        });
-        return await response.save();
-    }
-
-    async getResponsesForQuiz(quizId: string): Promise<Response[]> {
-        return await Response.find({ quiz: quizId }).populate('user');
-    }
-}
-
-export const quizService = new QuizService();
+export default quizService;

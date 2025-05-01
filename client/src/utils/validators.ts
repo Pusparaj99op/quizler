@@ -1,32 +1,50 @@
-import { isEmail } from 'validator';
+// Simple validators without external dependency
 
-export const validateEmail = (email: string): boolean => {
-    return isEmail(email);
+// Validate email
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 };
 
-export const validatePassword = (password: string): boolean => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
+// Validate password (at least 6 characters)
+export const isValidPassword = (password: string): boolean => {
+  return password.length >= 6;
 };
 
-export const validateUsername = (username: string): boolean => {
-    const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
-    return usernameRegex.test(username);
+// Validate required field
+export const isRequired = (value: string): boolean => {
+  return value.trim() !== '';
 };
 
-export const validateQuizTitle = (title: string): boolean => {
-    return title.length > 0 && title.length <= 100;
-};
-
-export const validateQuestionText = (text: string): boolean => {
-    return text.length > 0 && text.length <= 500;
-};
-
-export const validateAnswerOptions = (options: string[]): boolean => {
-    return options.length >= 2 && options.every(option => option.length > 0 && option.length <= 200);
+// Validate quiz data
+export const validateQuizData = (quizData: any): string[] => {
+  const errors: string[] = [];
+  
+  if (!isRequired(quizData.title)) {
+    errors.push('Title is required');
+  }
+  
+  if (!isRequired(quizData.description)) {
+    errors.push('Description is required');
+  }
+  
+  if (!quizData.questions || quizData.questions.length === 0) {
+    errors.push('At least one question is required');
+  } else {
+    quizData.questions.forEach((question: any, index: number) => {
+      if (!isRequired(question.text)) {
+        errors.push(`Question ${index + 1}: Text is required`);
+      }
+      
+      if (!question.options || question.options.length < 2) {
+        errors.push(`Question ${index + 1}: At least 2 options are required`);
+      }
+      
+      if (!isRequired(question.correctAnswer)) {
+        errors.push(`Question ${index + 1}: Correct answer is required`);
+      }
+    });
+  }
+  
+  return errors;
 };

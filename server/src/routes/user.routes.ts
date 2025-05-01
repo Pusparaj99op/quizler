@@ -1,28 +1,25 @@
 import { Router } from 'express';
 import { 
-    createUser, 
-    getUserById, 
-    updateUser, 
-    deleteUser, 
-    getAllUsers 
+  getAllUsers, 
+  getUserById, 
+  updateUser, 
+  deleteUser, 
+  createUser 
 } from '../controllers/user.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import authMiddleware from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Route to create a new user
-router.post('/', authMiddleware, createUser);
+// Protected routes - require authentication
+router.use(authMiddleware);
 
-// Route to get a user by ID
-router.get('/:id', authMiddleware, getUserById);
+// Admin routes
+router.get('/', getAllUsers);
+router.post('/', createUser);
 
-// Route to update a user
-router.put('/:id', authMiddleware, updateUser);
-
-// Route to delete a user
-router.delete('/:id', authMiddleware, deleteUser);
-
-// Route to get all users
-router.get('/', authMiddleware, getAllUsers);
+// User specific routes
+router.get('/:id', getUserById);
+router.put('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
 export default router;

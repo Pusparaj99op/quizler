@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logo.svg';
+// Create a temporary logo placeholder until the actual logo is created
+const logo = 'https://via.placeholder.com/150x50?text=Quizler';
 
 const Header: React.FC = () => {
     return (

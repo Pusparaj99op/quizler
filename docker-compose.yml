@@ -3,7 +3,7 @@ version: '3.8'
 services:
   client:
     build:
-      context: ./client
+      context: .
       dockerfile: Dockerfile.client
     ports:
       - "3000:3000"
@@ -16,13 +16,15 @@ services:
 
   server:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile.server
     ports:
       - "5000:5000"
     environment:
       - MONGODB_URI=mongodb://mongo:27017/quizler
-      - JWT_SECRET=your_jwt_secret
+      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - .env
     depends_on:
       - mongo
     networks:

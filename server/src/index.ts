@@ -1,41 +1,34 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
-import { json } from 'body-parser';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-import routes from './routes';
-import { errorHandler } from './middleware/error.middleware';
-import { connectDB } from './config/db';
-import { env } from './config/env';
+import morgan from 'morgan';
+import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
+import quizRoutes from './routes/quiz.routes';
+import errorHandler from './middleware/error.middleware';
+import connectDB from './config/db';
+import env from './config/env';
+import { logger } from './utils/logger';
+
+// Connect to database
+connectDB();
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
 
+// Middleware
+app.use(express.json());
 app.use(cors());
-app.use(json());
-app.use(routes);
+app.use(morgan('dev'));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/quizzes', quizRoutes);
+
+// Error handler
 app.use(errorHandler);
 
-io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-
-    // Additional socket event handlers can be added here
+// Start server
+const PORT = env.PORT;
+app.listen(PORT, () => {
+  logger.info(`Server running in ${env.NODE_ENV} mode on port ${PORT}`);
 });
-
-// Connect to MongoDB
-connectDB()
-    .then(() => {
-        server.listen(env.PORT, () => {
-            console.log(`Server is running on http://localhost:${env.PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error('Database connection error:', error);
-        process.exit(1);
-    });

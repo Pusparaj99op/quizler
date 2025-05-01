@@ -1,32 +1,49 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model';
-import { AuthError } from '../types/auth.types';
 
-const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(' ')[1];
+// Define interfaces for token payload and request with user
+interface TokenPayload {
+  id: string;
+  iat: number;
+  exp: number;
+}
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
+
+// Get JWT secret from environment variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+export const authMiddleware = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Get token from header
+    const token = req.header('x-auth-token');
+
+    // Check if token exists
     if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+      return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-        const user = await User.findById(decoded.id);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        req.user = user;
-        next();
-    } catch (error) {
-        const authError: AuthError = {
-            message: 'Unauthorized',
-            error: error.message,
-        };
-        return res.status(401).json(authError);
-    }
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    
+    // Add user from payload to request
+    req.user = {
+      id: decoded.id
+    };
+    
+    next();
+  } catch (error) {
+    console.error(`Auth middleware error: ${error}`);
+    res.status(401).json({ message: 'Token is not valid' });
+  }
 };
 
 export default authMiddleware;

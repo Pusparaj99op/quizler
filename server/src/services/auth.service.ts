@@ -1,8 +1,10 @@
-import { User } from '../models/user.model';
+import { User, IUser } from '../models/user.model';
 import { sign, verify } from 'jsonwebtoken';
 import { Request, Response } from 'express';
-import { IUser } from '../types/auth.types';
-import { JWT_SECRET } from '../config/env';
+import { User as UserType } from '../types/auth.types';
+import env from '../config/env';
+
+const JWT_SECRET = env.JWT_SECRET;
 
 // Function to register a new user
 export const registerUser = async (req: Request, res: Response) => {
@@ -22,7 +24,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
     try {
-        const user: IUser | null = await User.findOne({ username });
+        const user = await User.findOne({ username }) as IUser;
 
         if (!user || !(await user.comparePassword(password))) {
             return res.status(401).json({ message: 'Invalid credentials' });
