@@ -1,16 +1,28 @@
-# Use a specific Node.js version with security patches
-FROM node:20.12.0-alpine3.19
+# Use a specific Node.js version with minimal vulnerabilities
+FROM node:20-alpine
 
 WORKDIR /app
+
+# Install build dependencies for Rollup
+RUN apk add --no-cache python3 make g++
 
 # Copy package files and install dependencies with security best practices
 COPY package*.json ./
 # Use npm install instead of npm ci to handle package lock mismatches
-RUN npm install --production && npm cache clean --force
+RUN npm install && npm cache clean --force
 
-# Copy source files and build
+# Copy client and server package files and install dependencies
+COPY client/package*.json ./client/
+RUN cd client && npm install && npm cache clean --force
+
+COPY server/package*.json ./server/
+RUN cd server && npm install && npm cache clean --force
+
+# Copy source files
 COPY . .
-RUN npm run build
+
+# Build server only (we'll build client separately)
+RUN npm run build:server
 
 # Create non-root user for better security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
@@ -23,4 +35,4 @@ EXPOSE 5000
 ENV NODE_ENV=production
 
 # Start with a more secure entrypoint
-CMD ["node", "dist/index.js"]
+CMD ["node", "server/dist/index.js"]

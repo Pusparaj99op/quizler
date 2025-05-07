@@ -7,7 +7,8 @@ import store from './store';
 import { AuthProvider } from './contexts/AuthContext';
 import { QuizProvider } from './contexts/QuizContext';
 
-// Use consistent rendering approach with App.tsx which is using React Router v6
+// Render the application - App.tsx contains the React Router setup
+// with proper future flags to eliminate warnings
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>

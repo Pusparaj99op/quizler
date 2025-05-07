@@ -27,10 +27,10 @@ services:
       - NODE_ENV=production
       - PORT=5000
       - MONGO_URI=mongodb://admin:password@mongodb:27017/quizler?authSource=admin
-      - JWT_SECRET=J2s9$$aP4qR7hashLT5gZ3vX6bN1mC8eD0fH
+      - JWT_SECRET=J2s9$$hashLT5gZ3vX6bN1mC8eD0fH
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - ./server:/app/server
+      - /app/server/node_modules
 
   client:
     build:
@@ -42,9 +42,6 @@ services:
       - "80:80"
     depends_on:
       - server
-    volumes:
-      - ./client:/app
-      - /app/node_modules
 
 volumes:
   mongodb_data:

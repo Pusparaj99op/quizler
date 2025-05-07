@@ -129,7 +129,7 @@ npm run dev
 ```
 
 The application will be available at:
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:5173
 - Backend API: http://localhost:5000/api
 
 ### Production Mode
@@ -166,6 +166,10 @@ docker-compose up -d
 
 # View logs
 docker-compose logs -f
+
+
+docker-compose logs client
+docker-compose logs server
 
 # Stop all services
 docker-compose down

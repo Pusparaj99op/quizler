@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { createRoutesFromElements, createBrowserRouter, RouterProvider, Route, Outlet } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { QuizProvider } from './contexts/QuizContext';
 import Home from './pages/Home';
@@ -11,23 +11,43 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import './index.css';
 
+// Create router with future flags to eliminate warnings
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<AppLayout />}>
+      <Route index element={<Home />} />
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="quiz/:id" element={<Quiz />} />
+    </Route>
+  ),
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true
+    }
+  }
+);
+
+// Layout component that includes Header and Footer
+function AppLayout() {
+  return (
+    <>
+      <Header />
+      <div className="container mx-auto px-4 min-h-screen">
+        <Outlet />
+      </div>
+      <Footer />
+    </>
+  );
+}
+
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <QuizProvider>
-        <BrowserRouter>
-          <Header />
-          <div className="container mx-auto px-4 min-h-screen">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/quiz/:id" element={<Quiz />} />
-            </Routes>
-          </div>
-          <Footer />
-        </BrowserRouter>
+        <RouterProvider router={router} />
       </QuizProvider>
     </AuthProvider>
   );

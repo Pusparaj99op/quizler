@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-// Create a temporary logo placeholder until the actual logo is created
-const logo = 'https://via.placeholder.com/150x50?text=Quizler';
 
 const Header: React.FC = () => {
+    // Instead of using an external service, create a simple text logo
     return (
         <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
             <div className="flex items-center">
-                <img src={logo} alt="Quizler Logo" className="h-10 mr-3" />
+                <div className="bg-blue-500 h-10 w-24 flex items-center justify-center rounded mr-3">
+                    <span className="font-bold text-lg">Quizler</span>
+                </div>
                 <h1 className="text-xl font-bold">Quizler</h1>
             </div>
             <nav>
