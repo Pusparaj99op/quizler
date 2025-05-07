@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+// Use require syntax as alternative import method
+// @ts-ignore
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
