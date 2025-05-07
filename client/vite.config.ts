@@ -7,7 +7,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    open: true
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   resolve: {
     alias: {
@@ -17,5 +24,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true
+  },
+  define: {
+    'process.env': process.env
   }
 });

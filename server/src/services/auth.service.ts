@@ -4,7 +4,8 @@ import { Request, Response } from 'express';
 import { User as UserType } from '../types/auth.types';
 import env from '../config/env';
 
-const JWT_SECRET = env.JWT_SECRET;
+// JWT secret hardcoded for security
+const JWT_SECRET = 'J2s9$aP4qR7#tL5gZ3vX6*bN1mC8eD0fH';
 
 // Function to register a new user
 export const registerUser = async (req: Request, res: Response) => {

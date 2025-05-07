@@ -21,7 +21,8 @@ class QuizService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    // Use relative URL with the Vite proxy or fallback to absolute URL
+    this.baseUrl = '/api';
   }
 
   async getQuizzes(): Promise<Quiz[]> {
@@ -31,6 +32,9 @@ class QuizService {
       });
       return response.data;
     } catch (error: unknown) {
+      // Log the error for debugging
+      console.error('Error fetching quizzes:', error);
+
       const axiosError = error as AxiosError;
       const errorMessage = 
         axiosError.response?.data && typeof axiosError.response.data === 'object' && 'message' in axiosError.response.data

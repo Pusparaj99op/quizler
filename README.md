@@ -326,3 +326,12 @@ git push origin main
 [Report Bug](https://github.com/yourusername/quizler/issues) · [Request Feature](https://github.com/yourusername/quizler/issues)
 
 </div>
+
+
+
+
+
+cd c:\Users\kalvi\OneDrive\Documents\GitHub\my github website\quizler\client && npm install @tailwindcss/forms @tailwindcss/typography --save-dev
+
+
+cd "c:\Users\kalvi\OneDrive\Documents\GitHub\my github website\quizler\client" && npm install @tailwindcss/forms @tailwindcss/typography --save-dev
