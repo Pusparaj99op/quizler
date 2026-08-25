@@ -75,6 +75,11 @@ export async function registerAction(
   return {};
 }
 
+/** A post-login target is only honoured when it is a same-origin path. */
+function isSafeNext(next: string): boolean {
+  return next.startsWith('/') && next[1] !== '/' && next[1] !== '\\';
+}
+
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const next = String(formData.get('next') || '/dashboard');
 
@@ -82,7 +87,8 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     await signIn('credentials', {
       email: formData.get('email'),
       password: formData.get('password'),
-      redirectTo: next.startsWith('/') ? next : '/dashboard',
+      // Only a same-origin path: `//host` and `/\host` are read as external by browsers.
+      redirectTo: isSafeNext(next) ? next : '/dashboard',
     });
     return {};
   } catch (error) {
