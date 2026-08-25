@@ -1,337 +1,90 @@
-# <div align="center">🚀 Quizler</div>
+# Quizler
 
-<div align="center">
+A quiz platform for a college: departments run courses, faculty author and publish quizzes to
+their courses, students take them in a timed runner, and everything is graded automatically.
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.x-3178C6?logo=typescript)
-![Node.js](https://img.shields.io/badge/Node.js-14.x-339933?logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-4.x-47A248?logo=mongodb)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
-![Vite](https://img.shields.io/badge/Vite-Ready-646CFF?logo=vite)
+Built with **Next.js 16 (App Router) + React 19**, **MongoDB via Mongoose**, **Auth.js v5**
+(credentials, JWT sessions) and **Tailwind CSS v4**. Deploys to **Vercel** as-is.
 
-</div>
+## The college model
 
-<div align="center">
-  <img src="https://via.placeholder.com/800x400?text=Quizler+Interactive+Quiz+Platform" alt="Quizler App Banner" width="80%">
-  <br/>
-  <i>✨ Next-Generation Interactive Quiz Platform ✨</i>
-</div>
-
----
-
-## 🌟 Overview
-
-**Quizler** is a feature-rich, full-stack quiz application built with modern web technologies. Create, take, and share quizzes with an intuitive interface designed for both educators and learners. With real-time feedback, detailed analytics, and a responsive design, Quizler transforms how knowledge is tested and shared.
-
-> 💡 **Try it out:** [Live Demo](#) (Coming soon!)
-
-## ⚡ Key Features
-
-- **🔒 Secure Authentication** - JWT-based user authentication system
-- **📝 Interactive Quiz Editor** - Create engaging quizzes with a drag-and-drop interface
-- **⏱️ Real-time Quiz Taking** - Take quizzes with instant feedback and timer support
-- **📊 Advanced Analytics** - Track performance with detailed statistics and visualizations
-- **📱 Fully Responsive** - Perfect experience on any device, from mobile to desktop
-- **🌓 Light/Dark Mode** - Choose your preferred visual theme
-- **🔔 Push Notifications** - Stay updated with quiz activities and results
-- **🔄 Quiz Sharing** - Share your quizzes via direct links or social media
-- **🗂️ Category Management** - Organize quizzes by subjects and topics
-
-## 📋 Table of Contents
-
-- [🚀 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [🖥️ Running the Application](#️-running-the-application)
-  - [Development Mode](#development-mode)
-  - [Production Mode](#production-mode)
-  - [Docker Deployment](#docker-deployment)
-- [🏗️ Project Structure](#️-project-structure)
-- [🔌 API Documentation](#-api-documentation)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🔍 Troubleshooting](#-troubleshooting)
-- [🤝 Contributing](#-contributing)
-- [📜 License](#-license)
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-Before running Quizler, ensure you have:
-
-- **Node.js** (v14.x or later)
-- **npm** (v6.x or later) or **yarn** (v1.22.x or later)
-- **MongoDB** (v4.x or later) or MongoDB Atlas account
-- **Docker & Docker Compose** (optional, for containerized deployment)
-
-### Installation
-
-1️⃣ **Clone the repository**
-
-```bash
-git clone https://github.com/yourusername/quizler.git
-cd quizler
+```
+Department  ->  Course  ->  enrolled students + assigned faculty
+                  |
+                  +-> Quiz (draft | published | closed)  ->  Attempt per student
 ```
 
-2️⃣ **Configure environment variables**
+- A quiz belongs to a course, so publishing it makes it visible to everyone enrolled.
+- A published quiz also carries a **join code**, so a student can join one that is not tied to
+  their enrolments.
+- Attempts are capped per quiz (`maxAttempts`) and bounded by a duration and an optional
+  open/close window.
 
-Create a `.env` file in the root directory with:
+## Roles
 
-```env
-NODE_ENV=development
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/quizler
-JWT_SECRET=your_secure_jwt_secret_key
-VITE_API_URL=http://localhost:5000/api
-```
+| Role | Can do |
+| --- | --- |
+| **student** | See available quizzes, join by code, take a quiz, review past attempts and results |
+| **faculty** | Everything a student can, plus author/publish/close quizzes, view per-quiz results and export CSV |
+| **admin** | Everything above, plus approve or suspend users, change roles, manage departments and courses, enrol students, force-close any quiz |
 
-3️⃣ **Install dependencies**
+New registrations land in `pending` and must be approved by an admin at `/admin/users`.
+Registration can be restricted to a single email domain via `ALLOWED_EMAIL_DOMAIN`.
+
+## Local setup
 
 ```bash
-# Install server dependencies
-cd server
 npm install
-
-# Install client dependencies
-cd ../client
-npm install
-```
-
-## 🖥️ Running the Application
-
-### Development Mode
-
-1️⃣ **Start MongoDB**
-
-If using MongoDB locally:
-```bash
-# On Windows
-mongod
-
-# On macOS/Linux (if installed via Homebrew)
-brew services start mongodb-community
-```
-
-2️⃣ **Launch the backend server**
-
-```bash
-cd server
+cp .env.example .env.local     # then fill in MONGODB_URI and AUTH_SECRET
+npx auth secret                # generates AUTH_SECRET
+npm run seed                   # optional: demo departments, courses, users and a quiz
 npm run dev
 ```
 
-3️⃣ **Launch the frontend**
+Open http://localhost:3000. `npm run seed` prints the accounts it created; they all share
+`SEED_DEMO_PASSWORD` (falling back to `SEED_ADMIN_PASSWORD`).
 
-In a new terminal:
-```bash
-cd client
-npm run dev
-```
+MongoDB can be a local `mongod` or a MongoDB Atlas cluster — set `MONGODB_URI` accordingly.
 
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000/api
+## Scripts
 
-### Production Mode
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build and server |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest (scoring rules) |
+| `npm run seed` | Seed demo data into `MONGODB_URI` |
 
-1️⃣ **Build the client**
+## Deploying to Vercel
 
-```bash
-cd client
-npm run build
-```
+1. Push the repo to GitHub and import it at [vercel.com/new](https://vercel.com/new) — the
+   Next.js preset needs no extra configuration.
+2. Add `MONGODB_URI`, `AUTH_SECRET`, `NEXTAUTH_URL` (your production domain) and
+   `ALLOWED_EMAIL_DOMAIN` under Project Settings → Environment Variables, for Production,
+   Preview and Development.
+3. In MongoDB Atlas, allow access from Vercel under Network Access (`0.0.0.0/0`, or install
+   the Atlas integration from the Vercel Marketplace).
+4. Seed the production database once from your machine with `MONGODB_URI` pointed at Atlas,
+   or register the first account and promote it to `admin` directly in the database.
 
-2️⃣ **Build the server**
+Everything runs on the Node.js runtime (Mongoose cannot run on the edge). The connection is
+cached on `globalThis` in `src/lib/db.ts` so warm serverless invocations reuse one pool.
 
-```bash
-cd ../server
-npm run build
-```
-
-3️⃣ **Start the production server**
-
-```bash
-npm start
-```
-
-Access the full application at http://localhost:5000
-
-### Docker Deployment
-
-For a one-command setup of the entire stack:
-
-```bash
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-
-docker-compose logs client
-docker-compose logs server
-
-# Stop all services
-docker-compose down
-```
-
-The application will be available at http://localhost:80
-
-## 📱 Application Screenshots
-
-<div align="center">
-  <img src="https://via.placeholder.com/400x225?text=Home+Dashboard" alt="Home Dashboard" width="45%">
-  <img src="https://via.placeholder.com/400x225?text=Quiz+Creation" alt="Quiz Creation" width="45%">
-  <br/><br/>
-  <img src="https://via.placeholder.com/400x225?text=Quiz+Taking+Experience" alt="Quiz Taking" width="45%">
-  <img src="https://via.placeholder.com/400x225?text=Results+%26+Analytics" alt="Results & Analytics" width="45%">
-</div>
-
-## 🏗️ Project Structure
+## Layout
 
 ```
-quizler/
-├── client/                 # Frontend (React + TypeScript + Vite)
-│   ├── public/             # Public assets
-│   ├── src/
-│   │   ├── assets/         # Static resources
-│   │   ├── components/     # React components
-│   │   │   ├── common/     # Reusable UI components
-│   │   │   ├── layout/     # Layout components
-│   │   │   └── quiz/       # Quiz-specific components
-│   │   ├── contexts/       # React context providers
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API service functions
-│   │   ├── store/          # Redux store configuration
-│   │   ├── types/          # TypeScript definitions
-│   │   └── utils/          # Utility functions
-├── server/                 # Backend (Node.js + Express + TypeScript)
-│   ├── src/
-│   │   ├── config/         # Configuration
-│   │   ├── controllers/    # Request handlers
-│   │   ├── middleware/     # Express middleware
-│   │   ├── models/         # Mongoose models
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic
-│   │   ├── types/          # TypeScript definitions
-│   │   └── utils/          # Utility functions
-├── docker-compose.yml      # Docker Compose configuration
-├── Dockerfile.client       # Client Dockerfile
-└── Dockerfile.server       # Server Dockerfile
+src/
+  app/(auth)/        login, register
+  app/(app)/         dashboard, quiz runner, results, faculty area, admin panel
+  app/api/           Auth.js route, per-quiz results CSV export
+  actions/           server actions: auth, quiz authoring, attempts, admin
+  models/            Mongoose schemas: user, department, course, quiz, attempt
+  lib/               db connection, guards, scoring, quiz windows, zod validation
+  components/        layout shell, quiz editor, quiz runner UI, shared primitives
+  proxy.ts           route protection (Next 16's renamed middleware)
+scripts/seed.ts      demo data
 ```
 
-## 🔌 API Documentation
-
-### 🔐 Authentication Endpoints
-
-| Method | Endpoint          | Description               | Request Body                  |
-|--------|-------------------|---------------------------|-------------------------------|
-| POST   | /api/auth/register | Register a new user       | `{ name, email, password }`  |
-| POST   | /api/auth/login    | Login a user              | `{ email, password }`        |
-| GET    | /api/auth/profile  | Get user profile          | *Requires Auth Token*        |
-
-### 📋 Quiz Endpoints
-
-| Method | Endpoint                | Description                | Request Body                      |
-|--------|-------------------------|----------------------------|-----------------------------------|
-| POST   | /api/quizzes           | Create quiz                | `{ title, description, questions }`|
-| GET    | /api/quizzes           | Get all quizzes            | *Optional: ?all=true*             |
-| GET    | /api/quizzes/:id       | Get quiz by ID             | -                                 |
-| PUT    | /api/quizzes/:id       | Update quiz                | `{ title, description, questions }`|
-| DELETE | /api/quizzes/:id       | Delete quiz                | -                                 |
-| POST   | /api/quizzes/submit    | Submit quiz response       | `{ quiz, answers }`               |
-| GET    | /api/quizzes/responses/user | Get user's responses   | *Requires Auth Token*             |
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Redux** - State management
-- **Tailwind CSS** - Styling
-- **Axios** - HTTP client
-
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express** - Web framework
-- **TypeScript** - Type safety
-- **MongoDB** - Database
-- **Mongoose** - ODM
-- **JWT** - Authentication
-- **Socket.IO** - Real-time communications
-
-### DevOps
-- **Docker** - Containerization
-- **Docker Compose** - Multi-container orchestration
-- **Nginx** - Reverse proxy for production
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-#### 🔴 MongoDB Connection Problems
-- Verify MongoDB is running: `mongo --eval "db.serverStatus()"`
-- Check connection string in `.env` file
-- Ensure network allows MongoDB connections (typically port 27017)
-
-#### 🔴 Authentication Errors
-- Check that JWT_SECRET is consistent between environment and code
-- Verify token expiration hasn't occurred
-- Ensure token is properly included in request headers as `x-auth-token`
-
-#### 🔴 API Connection Issues
-- Confirm CORS is properly configured on the server
-- Verify API URL in client's environment variables
-- Check network tab in browser devtools for specific errors
-
-## 🤝 Contributing
-
-We welcome contributions to Quizler! Here's how:
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add some amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-Please make sure to update tests and documentation as appropriate.
-
-## 📜 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📫 Pushing to Git
-
-After making changes to your project, here's how to push to Git:
-
-```bash
-# Add all changes to staging
-git add .
-
-# Commit your changes with a descriptive message
-git commit -m "Add comprehensive README with setup instructions"
-
-# Push to your repository
-git push origin main
-```
-
----
-
-<div align="center">
-
-### ⭐ Star this repo if you find it useful! ⭐
-
-[Report Bug](https://github.com/yourusername/quizler/issues) · [Request Feature](https://github.com/yourusername/quizler/issues)
-
-</div>
-
-
-
-
-
-cd c:\Users\kalvi\OneDrive\Documents\GitHub\my github website\quizler\client && npm install @tailwindcss/forms @tailwindcss/typography --save-dev
-
-
-cd "c:\Users\kalvi\OneDrive\Documents\GitHub\my github website\quizler\client" && npm install @tailwindcss/forms @tailwindcss/typography --save-dev
+Authorization is enforced server-side in `src/lib/guards.ts` on every page and action;
+`src/proxy.ts` is only a fast redirect, not a security boundary.
