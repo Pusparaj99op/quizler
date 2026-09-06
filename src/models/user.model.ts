@@ -5,7 +5,9 @@ import { ROLES, USER_STATUSES, type Role, type UserStatus } from '@/lib/types';
 export interface IUser {
   name: string;
   email: string;
-  password: string;
+  password?: string;
+  googleId?: string;
+  provider: 'credentials' | 'google';
   role: Role;
   status: UserStatus;
   rollNumber?: string;
@@ -34,10 +36,18 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      // Google-authenticated accounts have no local password.
+      required: [
+        function (this: UserDoc) {
+          return this.provider === 'credentials';
+        },
+        'Password is required',
+      ],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
     },
+    googleId: { type: String, unique: true, sparse: true },
+    provider: { type: String, enum: ['credentials', 'google'], default: 'credentials', required: true },
     role: { type: String, enum: ROLES, default: 'student', required: true },
     // Faculty accounts are created as `pending` and must be approved by an admin.
     status: { type: String, enum: USER_STATUSES, default: 'active', required: true },
@@ -49,11 +59,12 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 );
 
 userSchema.pre('save', async function (this: UserDoc) {
-  if (!this.isModified('password')) return;
+  if (!this.isModified('password') || !this.password) return;
   this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.method('comparePassword', function (this: UserDoc, candidate: string) {
+  if (!this.password) return Promise.resolve(false);
   return bcrypt.compare(candidate, this.password);
 });
 
