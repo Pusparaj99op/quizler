@@ -6,6 +6,7 @@ import { connectDB } from '@/lib/db';
 import { User } from '@/models/user.model';
 import { Department } from '@/models/department.model';
 import { registerSchema } from '@/lib/validation';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export interface FormState {
   error?: string;
@@ -40,6 +41,11 @@ export async function registerAction(
   }
 
   const { name, email, password, role, rollNumber, department } = parsed.data;
+
+  const ip = await getClientIp();
+  if (!checkRateLimit(`register:${ip}`, 5, 15 * 60 * 1000)) {
+    return { error: 'Too many registration attempts. Please try again later.' };
+  }
 
   try {
     await connectDB();
@@ -82,6 +88,13 @@ function isSafeNext(next: string): boolean {
 
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const next = String(formData.get('next') || '/dashboard');
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+
+  const ip = await getClientIp();
+  if (!checkRateLimit(`login:ip:${ip}`, 20, 15 * 60 * 1000) ||
+      !checkRateLimit(`login:email:${email}`, 8, 15 * 60 * 1000)) {
+    return { error: 'Too many login attempts. Please try again later.' };
+  }
 
   try {
     await signIn('credentials', {
@@ -99,6 +112,11 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     }
     throw error;
   }
+}
+
+export async function googleSignInAction(formData: FormData): Promise<void> {
+  const next = String(formData.get('next') || '/dashboard');
+  await signIn('google', { redirectTo: isSafeNext(next) ? next : '/dashboard' });
 }
 
 export async function signOutAction(): Promise<void> {
